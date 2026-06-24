@@ -19,21 +19,24 @@ type Memory = {
   isImportant?: boolean;
 };
 
-// Mapeia todos os arquivos da pasta assets capturando todas as extensões utilizadas
-const imageModules = import.meta.glob('../assets/**/*.{jpg,jpeg,png,webp,gif}', { eager: true, as: 'url' });
-const videoModules = import.meta.glob('../assets/**/*.{mp4,webm,mov}', { eager: true, as: 'url' });
+// Mapeia os arquivos da pasta assets incluindo explicitamente as extensões usadas
+const imageModules = import.meta.glob('../assets/**/*.{jpg,jpeg,png,webp,gif}', { eager: true });
+const videoModules = import.meta.glob('../assets/**/*.{mp4,webm,mov}', { eager: true });
 
+// Extrai corretamente a URL resolvida pelo Vite (usando o .default do módulo)
 const images = Object.fromEntries(
-  Object.entries(imageModules).map(([path, url]) => {
+  Object.entries(imageModules).map(([path, module]) => {
     const filename = path.split('/').pop() ?? '';
-    return [filename, url as string];
+    const url = (module as { default: string }).default;
+    return [filename, url];
   }),
 );
 
 const videos = Object.fromEntries(
-  Object.entries(videoModules).map(([path, url]) => {
+  Object.entries(videoModules).map(([path, module]) => {
     const filename = path.split('/').pop() ?? '';
-    return [filename, url as string];
+    const url = (module as { default: string }).default;
+    return [filename, url];
   }),
 );
 
