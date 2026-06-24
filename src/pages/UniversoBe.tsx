@@ -19,20 +19,21 @@ type Memory = {
   isImportant?: boolean;
 };
 
-// Mapeia todos os arquivos da pasta assets para suas URLs
-const imageModules = import.meta.glob('../assets/*', { eager: true, as: 'url' });
+// Mapeia todos os arquivos da pasta assets capturando todas as extensões utilizadas
+const imageModules = import.meta.glob('../assets/**/*.{jpg,jpeg,png,webp,gif}', { eager: true, as: 'url' });
 const videoModules = import.meta.glob('../assets/**/*.{mp4,webm,mov}', { eager: true, as: 'url' });
 
 const images = Object.fromEntries(
   Object.entries(imageModules).map(([path, url]) => {
     const filename = path.split('/').pop() ?? '';
-    return [filename, url];
+    return [filename, url as string];
   }),
 );
+
 const videos = Object.fromEntries(
   Object.entries(videoModules).map(([path, url]) => {
     const filename = path.split('/').pop() ?? '';
-    return [filename, url];
+    return [filename, url as string];
   }),
 );
 
@@ -71,17 +72,14 @@ const memories: Memory[] = [
     size: 'lg',
     title: 'Copa',
     description: 'Nossa primeira copa juntos!',
-    // Exemplo com múltiplas imagens. Adicione os arquivos copa1.jpg e copa2.jpg em /assets
     images: ['primeiracopa1.jpeg', 'primeiracopa2.jpeg'],
     song: 'https://open.spotify.com/intl-pt/track/4M7qPlHxp3v0EaBRUcHXOJ?si=381edfe191ce433f'
   },
-  // Novas memórias adicionadas
   { x: 25, y: 85, size: 'lg', title: 'Primeira Páscoa', description: 'Nossa primeira páscoa juntos!', images: ['presentepascoa.jpg']},
   { x: 55, y: 25, size: 'sm', title: 'Nossos momentos', description: 'Alguns de nossos Momentos..', images: ['amo.jpg']},
   { x: 80, y: 80, size: 'sm', title: 'Nossos momentos', description: 'Alguns de nossos Momentos..', images: ['amo2.jpg']},
   { x: 10, y: 50, size: 'md', title: 'Nossos momentos', description: 'Alguns de nossos Momentos..', images: ['amo3.jpg']},
   { x: 50, y: 50, size: 'md', title: 'O BUQUÊ', description: 'Um dos melhores dias!', images: ['buque1.jpg', 'buque2.jpg', 'buque3.jpg', 'buque4.jpg', 'buque5.jpg', 'buque6.jpg', 'buque7.jpg', 'buque8.jpg', 'buque9.jpg']},
-  
   {
     x: 95,
     y: 60,
@@ -109,7 +107,6 @@ const memories: Memory[] = [
   { x: 47, y: 14, size: 'md', title: 'Nosso primeiro "show" juntos!', description: 'Não estavamos juntos mas cada musica eu sabia que era dedicada pra você (ignora o homi ter traido kkkkk)', images: ['show.jpeg'], song: 'https://open.spotify.com/intl-pt/track/6P7Uodyh8g40Nyc3no6R8E?si=6334b2d970814511'},
 ];
 
-// Componente para a galeria de imagens dentro do modal
 function MemoryImageGallery({ memory }: { memory: Memory }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const hasMultipleImages = memory.images && memory.images.length > 1;
@@ -126,7 +123,6 @@ function MemoryImageGallery({ memory }: { memory: Memory }) {
 
   return (
     <div className="relative mb-6 cursor-pointer" onClick={handleImageClick}>
-      {/* Efeito de "cartas empilhadas" para indicar múltiplas fotos */}
       {hasMultipleImages && (
         <>
           <div className="absolute top-2 left-2 w-full h-full rounded-xl bg-slate-700/30 -z-10 transform rotate-3" />
@@ -149,7 +145,6 @@ function MemoryImageGallery({ memory }: { memory: Memory }) {
   );
 }
 
-// Componente para a galeria de vídeos dentro do modal
 function MemoryVideoGallery({ memory }: { memory: Memory }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const hasMultipleVideos = memory.videos && memory.videos.length > 1;
@@ -168,7 +163,7 @@ function MemoryVideoGallery({ memory }: { memory: Memory }) {
     <div className="relative mb-6" onClick={handleVideoClick}>
       {hasMultipleVideos && (
         <p className="text-center text-sm text-slate-400 mb-2">
-          (Vídeo {currentIndex + 1} de {memory.videos.length}) {hasMultipleVideos && '- Clique no vídeo para trocar'}
+          (Vídeo {currentIndex + 1} de {memory.videos.length}) - Clique no vídeo para trocar
         </p>
       )}
       <AnimatePresence initial={false} mode="wait">
@@ -190,7 +185,6 @@ function MemoryVideoGallery({ memory }: { memory: Memory }) {
 export default function UniversoBe({ onBack }: UniversoBeProps) {
   const [selected, setSelected] = useState<Memory | null>(null);
   
-  // Gera estrelas de fundo para um efeito de universo mais denso
   const backgroundStars = useMemo(() => {
     return Array.from({ length: 150 }).map((_, i) => ({
       id: `bg-star-${i}`,
@@ -215,7 +209,6 @@ export default function UniversoBe({ onBack }: UniversoBeProps) {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 1 }}
       >
-        {/* Estrelas de Fundo Decorativas */}
         <div className="absolute inset-0 z-0">
           {backgroundStars.map((star) => (
             <motion.div
@@ -229,7 +222,6 @@ export default function UniversoBe({ onBack }: UniversoBeProps) {
           ))}
         </div>
 
-        {/* Botão de Voltar e Título */}
         <div className="absolute top-0 left-0 z-20 w-full flex items-center justify-between p-4 sm:p-6 lg:p-8">
           <PageTitle title="🌌 Universo Bê" />
           <button onClick={onBack} aria-label="Voltar" className="inline-flex items-center gap-2 rounded-full bg-black/20 px-4 py-2 text-sm text-white backdrop-blur-sm hover:bg-black/30">
@@ -237,7 +229,6 @@ export default function UniversoBe({ onBack }: UniversoBeProps) {
           </button>
         </div>
 
-        {/* Estrelas (Memórias) */}
         <motion.div
           className="absolute inset-0"
           variants={{ visible: { transition: { staggerChildren: 0.04, delayChildren: 1.2 } } }}
@@ -266,7 +257,6 @@ export default function UniversoBe({ onBack }: UniversoBeProps) {
         </motion.div>
       </motion.div>
 
-      {/* Modal da Memória Selecionada */}
       <AnimatePresence>
         {selected && (
           <motion.div
@@ -297,9 +287,11 @@ export default function UniversoBe({ onBack }: UniversoBeProps) {
                 </a>
               )}
 
-              <button onClick={() => setSelected(null)} className="rounded-xl bg-purple-600 px-4 py-2 font-semibold text-white transition hover:bg-purple-500">
-                Fechar
-              </button>
+              <div className="flex justify-end">
+                <button onClick={() => setSelected(null)} className="rounded-xl bg-purple-600 px-5 py-2.5 font-semibold text-white transition hover:bg-purple-500">
+                  Fechar
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
