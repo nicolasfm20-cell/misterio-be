@@ -1,5 +1,5 @@
 import emailjs from '@emailjs/browser';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import PageTitle from '../components/PageTitle';
 
 type Complaint = {
@@ -8,12 +8,29 @@ type Complaint = {
   createdAt: Date;
 };
 
+const LOCAL_STORAGE_KEY = 'surpresa-remedio:reclamacoes';
+
 export default function Reclamacoes() {
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [draft, setDraft] = useState('');
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [complaints, setComplaints] = useState<Complaint[]>(() => {
+    const savedComplaints = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedComplaints) {
+      // JSON.parse não converte strings de data de volta para objetos Date,
+      // então precisamos fazer isso manualmente.
+      return (JSON.parse(savedComplaints) as Complaint[]).map((complaint) => ({
+        ...complaint,
+        createdAt: new Date(complaint.createdAt),
+      }));
+    }
+    return [];
+  });
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(complaints));
+  }, [complaints]);
 
   const isEmailConfigured = Boolean(
     import.meta.env.VITE_EMAILJS_SERVICE_ID &&
