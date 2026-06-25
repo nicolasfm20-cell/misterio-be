@@ -17,12 +17,16 @@ export default function Remedio() {
   const [timeLeft, setTimeLeft] = useState(() => getTimeRemaining());
 
   useEffect(() => {
+    if (timeLeft <= 0) {
+      return;
+    }
+
     const interval = window.setInterval(() => {
       setTimeLeft(getTimeRemaining());
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [timeLeft]);
 
   const hours = Math.floor(timeLeft / (1000 * 60 * 60));
   const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
