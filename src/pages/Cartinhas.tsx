@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
 
@@ -8,13 +8,25 @@ type Letter = {
   text: string;
 };
 
+const LOCAL_STORAGE_KEY = 'surpresa-remedio:cartinhas';
+
 export default function Cartinhas() {
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
-  const [letters, setLetters] = useState<Letter[]>([]);
+  const [letters, setLetters] = useState<Letter[]>(() => {
+    const savedLetters = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedLetters) {
+      return JSON.parse(savedLetters) as Letter[];
+    }
+    return [];
+  });
   const [openLetterId, setOpenLetterId] = useState<number | null>(null);
   const [editingLetterId, setEditingLetterId] = useState<number | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(letters));
+  }, [letters]);
 
   function resetComposer() {
     setTitle('');
